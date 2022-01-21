@@ -16,10 +16,22 @@ import {
   DatasetComponentOption,
   // Built-in transform (filter, sort)
   TransformComponent,
+  VisualMapComponent,
+  VisualMapContinuousComponent,
+  VisualMapPiecewiseComponent,
+  VisualMapComponentOption,
+  MarkAreaComponent,
+  MarkLineComponent,
+  MarkPointComponent,
 } from 'echarts/components';
 import { LabelLayout, UniversalTransition } from 'echarts/features';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import {
+  MarkAreaOption,
+  MarkLineOption,
+  MarkPointOption,
+} from 'echarts/types/dist/shared';
 
 type ECOption = echarts.ComposeOption<
   | LineSeriesOption
@@ -27,6 +39,10 @@ type ECOption = echarts.ComposeOption<
   | TooltipComponentOption
   | GridComponentOption
   | DatasetComponentOption
+  | VisualMapComponentOption
+  | MarkAreaOption
+  | MarkPointOption
+  | MarkLineOption
 >;
 
 echarts.use([
@@ -39,6 +55,12 @@ echarts.use([
   LabelLayout,
   UniversalTransition,
   CanvasRenderer,
+  VisualMapComponent,
+  VisualMapContinuousComponent,
+  VisualMapPiecewiseComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
+  MarkPointComponent,
 ]);
 
 // Write TypeScript code!
@@ -47,56 +69,145 @@ const myChartElem: HTMLElement = document.getElementById('mychart');
 var myChart = echarts.init(myChartElem);
 
 const option: ECOption = {
-  xAxis: {
-    axisLabel: {
-      show: true,
-      color: '#fe00f0',
-      rotate: 25
+  xAxis: [
+    {
+      id: 'time-axis',
+      name: 't',
+      type: 'value',
+      boundaryGap: false,
+      axisLabel: {
+        show: true,
+        color: '#fe00f0',
+        rotate: 25,
+      },
+      // data: ['A', 'B', 'C', 'D', 'E'],
+      // scale: true,
+      nameRotate: 0,
     },
-    // scale: true,
-    name: 'X',
-    nameRotate: 0
-  },
-  yAxis: {
-    name: "Foo",
-    nameRotate: 90
+    {},
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      id: 'pressure-y-axis',
+      name: 'Pressure',
+      nameLocation: 'middle',
+      nameGap: 25,
+      nameRotate: 90,
+    },
+  ],
+  visualMap: {
+    type: 'piecewise',
+    show: false,
+    seriesIndex: 0,
+    dimension: 1,
+    pieces: [
+      { gte: 0, lt: 60, color: '#333' },
+      {
+        gte: 60,
+        lt: Infinity,
+        color: '#f03',
+        symbol: 'square',
+        symbolSize: 10,
+      },
+    ],
   },
   series: [
     {
+      type: 'line',
       data: [
-        [3,9],
-        [7,21],
-        [10, 77],
-        [21, 133],
-        [30, 150],
+        [0, 9],
+        [5, 21],
+        [10, 77] /*{
+          value: [10, 77],
+          symbol: 'diamond',
+          symbolSize: 10,
+        },*/,
+        [15, 133],
+        [20, 150],
       ],
-      lineStyle: {
-        color: "#00ff00",
+      /*lineStyle: {
+        color: '#00ff00',
         type: 'dashed',
         join: 'miter',
-        width: 3
-      },      
+        width: 3,
+      },*/
       // step: 'middle',
       // smoothMonotone: 'y',
       /*blur: {
         label: 'foo'
       },*/
-      markPoint: {
-        data: [{
-          name: 'foo',
-          value: 'dd'
-        }]
-      },
-      smooth: 12,      
-      showAllSymbol: true,
-      type: 'line',
       markLine: {
-        name: "moo",
-        lineStyle: {
-          color: "#aaaaaa"
-        }
-
-      }
+        tooltip: {
+          show: true,
+        },
+        name: 'critical',
+        label: {
+                    
+          silent: true,
+          tag: 'crit',
+          rotate: 20,
+        },
+        itemStyle: {},
+        data: [
+          {
+            xAxis: 5,
+          },
+        ],
+      },
+      markPoint: {
+        data: [
+          {
+            name: 'foo',
+            symbolSize: 25,
+            symbol: 'triangle',
+            symbolRotate: 180,
+            itemStyle: {
+              color: '#0f0',
+            },
+            //x: 104.5, pixel
+            //y: 22,
+            xAxis: 6,
+            yAxis: 29,
+          },
+        ],
+      },
+      markArea: {
+        itemStyle: {
+          color: '#f0a',
+          opacity: 0.5,
+        },
+        data: [
+          [
+            {
+              name: 'Highlight',
+              itemStyle: {
+                color: '#4ff',
+              },
+              //valueDim: '',
+              //valueIndex: 1,
+              xAxis: 3,
+            },
+            {
+              // valueDim: '0',
+              // valueIndex: 3,
+              xAxis: 11,
+            },
+          ],
+          [
+            {
+              name: 'From 60 to 80',
+              yAxis: 90.22,
+            },
+            {
+              yAxis: 108.55,
+            },
+          ],
+        ],
+      },
+      smooth: true,
+      smoothMonotone: 'x',
+      showAllSymbol: true,
     },
   ],
 };
