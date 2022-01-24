@@ -23,6 +23,8 @@ import {
   MarkAreaComponent,
   MarkLineComponent,
   MarkPointComponent,
+  AxisPointerComponent,
+  AxisPointerComponentOption,
 } from 'echarts/components';
 import { LabelLayout, UniversalTransition } from 'echarts/features';
 
@@ -43,6 +45,7 @@ type ECOption = echarts.ComposeOption<
   | MarkAreaOption
   | MarkPointOption
   | MarkLineOption
+  | AxisPointerComponentOption
 >;
 
 echarts.use([
@@ -61,6 +64,7 @@ echarts.use([
   MarkAreaComponent,
   MarkLineComponent,
   MarkPointComponent,
+  AxisPointerComponent,
 ]);
 
 // Write TypeScript code!
@@ -94,6 +98,9 @@ const option: ECOption = {
       nameLocation: 'middle',
       nameGap: 25,
       nameRotate: 90,
+      axisPointer: {
+        show: true,
+      },
     },
   ],
   visualMap: {
@@ -143,7 +150,6 @@ const option: ECOption = {
         },
         name: 'critical',
         label: {
-                    
           silent: true,
           tag: 'crit',
           rotate: 20,
@@ -213,3 +219,13 @@ const option: ECOption = {
 };
 
 myChart.setOption(option);
+
+myChart.on('click', (params) => {
+  console.log('clicked', params);
+  // params.event.cancelBubble = true;
+  params.event.event.stopPropagation();
+});
+
+(myChartElem as HTMLDivElement).addEventListener('click', (ev) => {
+  console.log('div clk', ev);
+});
