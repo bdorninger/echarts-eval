@@ -215,6 +215,21 @@ const option: ECOption = {
       smoothMonotone: 'x',
       showAllSymbol: true,
     },
+    {
+      type: 'line',
+      data: [
+        [0, 34],
+        [2.3, 48],
+        [6.6, 66.6],
+        [15.6, 55.8],
+        [20, 77],
+      ],
+      lineStyle: {
+        color: '#00ff00',
+        width: 3,
+      },
+      step: 'middle',
+    },
   ],
 };
 
