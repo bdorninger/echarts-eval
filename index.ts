@@ -87,6 +87,9 @@ const option: ECOption = {
       // data: ['A', 'B', 'C', 'D', 'E'],
       // scale: true,
       nameRotate: 0,
+      axisPointer: {
+        show: true,
+      },
     },
     {},
   ],
