@@ -25,6 +25,12 @@ import {
   MarkPointComponent,
   AxisPointerComponent,
   AxisPointerComponentOption,
+  DataZoomComponent,
+  DataZoomComponentOption,
+  DataZoomInsideComponent,
+  DataZoomSliderComponent,
+  GraphicComponent,
+  GraphicComponentOption
 } from 'echarts/components';
 import { LabelLayout, UniversalTransition } from 'echarts/features';
 
@@ -34,6 +40,7 @@ import {
   MarkLineOption,
   MarkPointOption,
 } from 'echarts/types/dist/shared';
+import { setChart } from './move';
 
 type ECOption = echarts.ComposeOption<
   | LineSeriesOption
@@ -46,6 +53,8 @@ type ECOption = echarts.ComposeOption<
   | MarkPointOption
   | MarkLineOption
   | AxisPointerComponentOption
+  | DataZoomComponentOption
+  | GraphicComponentOption
 >;
 
 echarts.use([
@@ -65,6 +74,9 @@ echarts.use([
   MarkLineComponent,
   MarkPointComponent,
   AxisPointerComponent,
+  DataZoomInsideComponent,
+  DataZoomSliderComponent,
+  GraphicComponent
 ]);
 
 // Write TypeScript code!
@@ -106,15 +118,38 @@ const option: ECOption = {
       },
     },
   ],
+  dataZoom: [
+    {
+      yAxisId: 'pressure-y-axis',
+      // xAxisId: 'time-axis',
+      type: 'inside',
+      filterMode: 'none',
+    },
+    {
+      xAxisId: 'time-axis',
+      type: 'slider',
+      filterMode: 'none',
+    },
+  ],
+
   visualMap: {
     type: 'piecewise',
     show: false,
     seriesIndex: 0,
-    dimension: 1,
+    dimension: 0,
+
     pieces: [
-      { gte: 0, lt: 60, color: '#333' },
+      //{ lt: 0, color: '#3f3' },
+      { lt: 5, color: '#44f', symbolSize: 10 },
       {
-        gte: 60,
+        gte: 5,
+        lt: 10,
+        color: '#333',
+        symbolSize: 10,
+        label: 'muh',
+      },
+      {
+        gte: 10,
         lt: Infinity,
         color: '#f03',
         symbol: 'square',
@@ -126,15 +161,15 @@ const option: ECOption = {
     {
       type: 'line',
       data: [
-        [0, 9],
-        [5, 21],
-        [10, 77] /*{
+        [0, 9, 1],
+        [5, 21, 0],
+        [10, 77, 1] /*{
           value: [10, 77],
           symbol: 'diamond',
           symbolSize: 10,
         },*/,
-        [15, 133],
-        [20, 150],
+        [15, 133, 0],
+        [20, 150, 1],
       ],
       /*lineStyle: {
         color: '#00ff00',
@@ -164,7 +199,7 @@ const option: ECOption = {
           },
         ],
       },
-      markPoint: {
+      /*markPoint: {
         data: [
           {
             name: 'foo',
@@ -180,8 +215,8 @@ const option: ECOption = {
             yAxis: 29,
           },
         ],
-      },
-      markArea: {
+      },*/
+      /* markArea: {
         itemStyle: {
           color: '#f0a',
           opacity: 0.5,
@@ -213,13 +248,15 @@ const option: ECOption = {
             },
           ],
         ],
-      },
+      },*/
       smooth: true,
       smoothMonotone: 'x',
       showAllSymbol: true,
+      symbolSize: 10,
     },
     {
       type: 'line',
+      silent: true,
       data: [
         [0, 34],
         [2.3, 48],
@@ -236,7 +273,8 @@ const option: ECOption = {
   ],
 };
 
-myChart.setOption(option);
+// myChart.setOption(option);
+setChart(myChart);
 
 myChart.on('click', (params) => {
   console.log('clicked', params);
