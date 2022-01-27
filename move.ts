@@ -39,28 +39,6 @@ const option = {
     type: 'value',
     axisLine: { onZero: false },
   },
-  /*dataZoom: [
-    {
-      type: 'slider',
-      xAxisIndex: 0,
-      filterMode: 'none'
-    },
-    {
-      type: 'slider',
-      yAxisIndex: 0,
-      filterMode: 'none'
-    },
-    {
-      type: 'inside',
-      xAxisIndex: 0,
-      filterMode: 'none'
-    },
-    {
-      type: 'inside',
-      yAxisIndex: 0,
-      filterMode: 'none'
-    }
-  ],*/
   series: [
     {
       id: 'a',
@@ -75,15 +53,35 @@ const option = {
 function updatePosition() {
   myChart.setOption({
     graphic: data.map(function (item, dataIndex) {
-      return {
+      const pos = {
         position: myChart.convertToPixel('grid', item),
       };
+      console.log(pos);
+      return pos;
     }),
   });
 }
 
 function onPointDragging(dataIndex: number, pos: number[]) {
-  data[dataIndex] = myChart.convertFromPixel('grid', pos);
+  const left = dataIndex === 0 ? -1 : dataIndex - 1;
+  const right = dataIndex === data.length - 1 ? -1 : dataIndex + 1;
+
+  const xleft = left < 0 ? 0 : data[left][0];
+  const xright = right < 0 ? 30 : data[right][0];
+
+  const newdata = myChart.convertFromPixel('grid', pos);
+  // console.log('drag', newdata[0], xleft, xright);
+  let boundsHit = false;
+  if (newdata[0] < xleft) {
+    newdata[0] = xleft;
+    boundsHit = true;
+  }
+  if (newdata[0] > xright) {
+    newdata[0] = xright;
+    boundsHit = true;
+  }
+
+  data[dataIndex] = newdata;
   // Update data
   myChart.setOption({
     series: [
@@ -92,6 +90,32 @@ function onPointDragging(dataIndex: number, pos: number[]) {
         data: data,
       },
     ],
+  });
+
+  if (boundsHit) {
+    mapDragPoints();
+  }
+}
+
+function mapDragPoints() {
+  myChart.setOption({
+    graphic: data.map(function (item, dataIndex) {
+      return {
+        type: 'circle',
+        position: myChart.convertToPixel('grid', item),
+        shape: {
+          cx: 0,
+          cy: 0,
+          r: symbolSize / 2,
+        },
+        invisible: false,
+        draggable: true,
+        ondrag: function (dx, dy) {
+          onPointDragging(dataIndex, [this.x, this.y]);
+        },
+        z: 100,
+      };
+    }),
   });
 }
 
@@ -102,25 +126,7 @@ export function setChart(chart: echarts.ECharts) {
 
   setTimeout(function () {
     // Add shadow circles (which is not visible) to enable drag.
-    myChart.setOption({
-      graphic: data.map(function (item, dataIndex) {
-        return {
-          type: 'circle',
-          position: myChart.convertToPixel('grid', item),
-          shape: {
-            cx: 0,
-            cy: 0,
-            r: symbolSize / 2,
-          },
-          invisible: true,
-          draggable: true,
-          ondrag: function (dx, dy) {
-            onPointDragging(dataIndex, [this.x, this.y]);
-          },
-          z: 100,
-        };
-      }),
-    });
+    mapDragPoints();
   }, 0);
   window.addEventListener('resize', updatePosition);
   myChart.on('dataZoom', updatePosition);
