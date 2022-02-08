@@ -42,8 +42,8 @@ import {
 } from 'echarts/types/dist/shared';
 import { setChart } from './move';
 
-type ECOption = echarts.ComposeOption<
-  | LineSeriesOption
+type ECOption = echarts.ComposeOption<  
+  LineSeriesOption
   | TitleComponentOption
   | TooltipComponentOption
   | GridComponentOption
